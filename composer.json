@@ -26,7 +26,6 @@
         "pestphp/pest": "^1.22|^2.0|^3.0",
         "phpstan/phpstan-phpunit": "^1.0",
         "phpunit/phpunit": "^9.5.24|^10.5|^11.0",
-        "spatie/pest-plugin-test-time": "^1.1",
         "spatie/ray": "^1.41.0"
     },
     "autoload": {
