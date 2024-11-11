@@ -11,5 +11,7 @@ testbench.yaml
 vendor
 node_modules
 
+.actrc
+
 .badita.yaml
 build/
