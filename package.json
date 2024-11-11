@@ -1,0 +1,5 @@
+{
+    "devDependencies": {
+        "tracking-query-params-registry": "*"
+    }
+}

@@ -1,0 +1,64 @@
+{
+    "name": "schenke-io/clean-url",
+    "description": "check and cleans url from parameters seen as session or marketing related data",
+    "keywords": [
+        "schenke-io"
+    ],
+    "homepage": "https://github.com/schenke-io/clean-url",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "K.-U. Schenke"
+        }
+    ],
+    "require": {
+        "php": "^8.1|^8.2|^8.3|^8.4",
+        "spatie/laravel-package-tools":"^1.16",
+        "guzzlehttp/guzzle": "^7.0",
+        "ext-curl": "*",
+        "ext-json": "*"
+    },
+    "require-dev": {
+        "laravel/pint": "^1.18",
+        "mockery/mockery": "^1.5",
+        "orchestra/testbench": "^7.7|^8.0",
+        "pestphp/pest": "^1.22",
+        "phpstan/phpstan-phpunit": "^1.0",
+        "phpunit/phpunit": "^9.5.24",
+        "spatie/pest-plugin-test-time": "^1.1",
+        "spatie/ray": "^1.41.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "SchenkeIo\\CleanUrl\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "SchenkeIo\\CleanUrl\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "docs": "php ./src/Helper/Docs/make_readme.php",
+        "analyse": "vendor/bin/phpstan analyse",
+        "test": "vendor/bin/pest",
+        "coverage": "vendor/bin/pest --coverage",
+        "pint": "vendor/bin/pint",
+        "data": "SchenkeIo\\CleanUrl\\Makers\\Run::update",
+        "release": [
+            "composer docs",
+            "composer pint",
+            "composer analyse",
+            "composer coverage"
+        ]
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true,
+            "phpstan/extension-installer": true
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
