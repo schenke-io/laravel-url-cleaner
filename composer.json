@@ -1,10 +1,10 @@
 {
-    "name": "schenke-io/clean-url",
-    "description": "check and cleans url from parameters seen as session or marketing related data",
+    "name": "schenke-io/laravel-url-cleaner",
+    "description": "check and cleans url from seo or tracking data",
     "keywords": [
         "schenke-io"
     ],
-    "homepage": "https://github.com/schenke-io/clean-url",
+    "homepage": "https://github.com/schenke-io/laravel-url-cleaner",
     "license": "MIT",
     "authors": [
         {
