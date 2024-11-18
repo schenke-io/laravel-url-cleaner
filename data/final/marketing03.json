@@ -1,0 +1,216 @@
+{
+    "": [
+        "Campaign",
+        "__hssc",
+        "__hstc",
+        "_hsenc",
+        "_hsmi",
+        "_openstat",
+        "action_object_map",
+        "action_ref_map",
+        "action_type_map",
+        "aff_platform",
+        "aff_trace_key",
+        "assetId",
+        "assetType",
+        "at_campaign",
+        "at_custom*",
+        "at_medium",
+        "c_id",
+        "campaignId",
+        "campaign_id",
+        "cmpid",
+        "dpg_*",
+        "elqTrack",
+        "elqTrackId",
+        "fb_action_ids",
+        "fb_action_types",
+        "fb_ref",
+        "fb_source",
+        "fbclid",
+        "ga_*",
+        "gclid",
+        "gclsrc",
+        "gs_l",
+        "hmb_campaign",
+        "hmb_medium",
+        "hmb_source",
+        "hsCtaTracking",
+        "itm_*",
+        "mbid",
+        "mc_cid",
+        "mc_eid",
+        "mkt_tok",
+        "mtm_*",
+        "ncid",
+        "nr_email_referer",
+        "ns_*",
+        "pk_*",
+        "recipientId",
+        "s_cid",
+        "sc_campaign",
+        "sc_channel",
+        "sc_cid",
+        "sc_content",
+        "sc_country",
+        "sc_geo",
+        "sc_medium",
+        "sc_outcome",
+        "siteId",
+        "soc_src",
+        "soc_trk",
+        "spJobID",
+        "spMailingID",
+        "spReportId",
+        "spUserID",
+        "stm_*",
+        "trk",
+        "trkCampaign",
+        "tt_content",
+        "tt_medium",
+        "twclid",
+        "utm_*",
+        "vero_conv",
+        "vero_id",
+        "wt_mc",
+        "wt_zmc",
+        "yclid"
+    ],
+    "*.aliexpress.*": [
+        "algo_expid"
+    ],
+    "*.aliexpress.com": [
+        "algo_pvid",
+        "btsid",
+        "expid",
+        "initiative_id",
+        "scm_id",
+        "spm"
+    ],
+    "*.twitter.com": [
+        "cxt",
+        "ref_*",
+        "s",
+        "t"
+    ],
+    "*.yahoo.com": [
+        "guccounter"
+    ],
+    "amazon.*": [
+        "_encoding",
+        "ascsubtag",
+        "pd_rd_*",
+        "pf",
+        "pf_rd_*",
+        "psc",
+        "ref_",
+        "tag"
+    ],
+    "bilibili.com": [
+        "callback"
+    ],
+    "bing.com": [
+        "cvid",
+        "form",
+        "pq",
+        "qs",
+        "sc",
+        "sk",
+        "sp"
+    ],
+    "caseking.de": [
+        "campaign",
+        "sPartner"
+    ],
+    "change.org": [
+        "guest",
+        "recruited_by_id",
+        "recruiter",
+        "short_display_name",
+        "source_location"
+    ],
+    "ebay.*": [
+        "_trkparms",
+        "_trksid",
+        "amdata",
+        "epid",
+        "hash",
+        "var"
+    ],
+    "etsy.com": [
+        "click_key",
+        "click_sum",
+        "organic_search_click",
+        "ref"
+    ],
+    "facebook.com": [
+        "hrc",
+        "refsrc"
+    ],
+    "google.*": [
+        "ei",
+        "gs_gbg",
+        "gs_lcp",
+        "gs_mss",
+        "gs_rn",
+        "gws_rd",
+        "sei",
+        "ved"
+    ],
+    "imdb.com": [
+        "pf_rd_*",
+        "ref_"
+    ],
+    "linkedin.com": [
+        "eBP",
+        "lgCta",
+        "lgTemp",
+        "lipi",
+        "midSig",
+        "midToken",
+        "recommendedFlavor",
+        "refId",
+        "trackingId",
+        "trk",
+        "trkEmail"
+    ],
+    "medium.com": [
+        "_branch_match_id",
+        "source"
+    ],
+    "open.spotify.com": [
+        "context",
+        "si"
+    ],
+    "sourceforge.net": [
+        "position",
+        "source"
+    ],
+    "tiktok.com": [
+        "_d",
+        "checksum",
+        "is_copy_url",
+        "is_from_webapp",
+        "language",
+        "preview_pb",
+        "sec_user_id",
+        "sender_device",
+        "sender_web_id",
+        "share_app_id",
+        "share_item_id",
+        "share_link_id",
+        "source",
+        "timestamp",
+        "tt_from",
+        "u_code",
+        "user_id"
+    ],
+    "yandex.*": [
+        "lr",
+        "redircnt"
+    ],
+    "youtube.com": [
+        "feature",
+        "kw"
+    ]
+}

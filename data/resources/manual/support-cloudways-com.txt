@@ -1,0 +1,14 @@
+cof
+cx
+dm_i
+fbclid
+gclid
+ie
+mc_cid
+mc_eid
+msclkid
+origin
+qid
+siteurl
+utm_*
+zanpid

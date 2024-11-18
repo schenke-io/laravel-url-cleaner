@@ -11,7 +11,12 @@
 |
 */
 
-// uses(Tests\TestCase::class)->in('Feature');
+use SchenkeIo\LaravelUrlCleaner\Data\FileIo;
+use SchenkeIo\LaravelUrlCleaner\Tests\TestCase;
+
+require_once __DIR__.'/../vendor/autoload.php';
+
+uses(TestCase::class)->in('Feature');
 
 /*
 |--------------------------------------------------------------------------
@@ -24,9 +29,9 @@
 |
 */
 
-expect()->extend('toBeOne', function () {
-    return $this->toBe(1);
-});
+//expect()->extend('toBeOne', function () {
+//    return $this->toBe(1);
+//});
 
 /*
 |--------------------------------------------------------------------------
@@ -43,3 +48,8 @@ function something()
 {
     // ..
 }
+
+/*
+ * during testing the test data dir is used
+ */
+FileIo::$dataDir = __DIR__.'/data';

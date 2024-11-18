@@ -1,3 +1,9 @@
 {
-    "preset": "psr12"
+    "preset": "laravel",
+    "include": [
+        "workbench"
+    ],
+    "exclude": [
+        "__old"
+    ]
 }

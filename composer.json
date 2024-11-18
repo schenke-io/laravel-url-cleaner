@@ -1,6 +1,7 @@
 {
     "name": "schenke-io/laravel-url-cleaner",
     "description": "check and cleans url from seo or tracking data",
+    "type": "library",
     "keywords": [
         "schenke-io"
     ],
@@ -13,50 +14,92 @@
     ],
     "require": {
         "php": "^8.1|^8.2|^8.3",
-        "spatie/laravel-package-tools":"^1.16",
-        "guzzlehttp/guzzle": "^7.0",
         "ext-curl": "*",
-        "ext-json": "*"
+        "ext-json": "*",
+        "ext-simplexml": "*",
+        "archtechx/enums": "^1.1",
+        "guzzlehttp/guzzle": "^7.0",
+        "spatie/laravel-package-tools": "^1.0",
+        "timkrase/phpunit-coverage-badge": "^1.0.0"
     },
     "require-dev": {
         "laravel/pint": "^1.18",
-        "laravel/framework": "^9.0|^10.0|^11.0",
+        "laravel/framework": "^10.0|^11.0",
         "mockery/mockery": "^1.5",
-        "orchestra/testbench": "^7.7|^8.0|^9.0",
+        "orchestra/testbench": "^8.0|^9.0",
         "pestphp/pest": "^1.22|^2.0|^3.0",
         "phpstan/phpstan-phpunit": "^1.0",
-        "phpunit/phpunit": "^9.5.24|^10.5|^11.0",
-        "spatie/ray": "^1.41.0"
+        "spatie/ray": "^1.40"
     },
     "autoload": {
         "psr-4": {
-            "SchenkeIo\\CleanUrl\\": "src/"
+            "SchenkeIo\\LaravelUrlCleaner\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "SchenkeIo\\CleanUrl\\Tests\\": "tests/"
+            "SchenkeIo\\LaravelUrlCleaner\\Tests\\": "tests/",
+            "Workbench\\App\\": "workbench/app/",
+            "Workbench\\Database\\Factories\\": "workbench/database/factories/",
+            "Workbench\\Database\\Seeders\\": "workbench/database/seeders/"
         }
     },
     "scripts": {
-        "docs": "php ./src/Helper/Docs/make_readme.php",
+        "docs": "vendor/bin/testbench make:readme",
+        "data": "vendor/bin/testbench make:data",
         "analyse": "vendor/bin/phpstan analyse",
         "test": "vendor/bin/pest",
         "coverage": "vendor/bin/pest --coverage",
         "pint": "vendor/bin/pint",
-        "data": "SchenkeIo\\CleanUrl\\Makers\\Run::update",
+        "low": "composer update --prefer-lowest --prefer-dist",
+        "high": "composer update --prefer-stable --prefer-dist",
+        "check": [
+            "@data",
+            "@docs",
+            "@pint",
+            "@analyse",
+            "@coverage"
+        ],
         "release": [
-            "composer docs",
-            "composer pint",
-            "composer analyse",
-            "composer coverage"
+            "@data",
+            "@docs",
+            "@pint",
+            "@low",
+            "@test",
+            "@high",
+            "@analyse",
+            "@coverage"
+        ],
+        "post-autoload-dump": [],
+        "serve": [
+            "Composer\\Config::disableProcessTimeout",
+            "@build",
+            "@php vendor/bin/testbench serve --ansi"
+        ],
+        "lint": [
+            "@php vendor/bin/pint --ansi",
+            "@php vendor/bin/phpstan analyse --verbose --ansi"
         ]
     },
     "config": {
         "sort-packages": true,
         "allow-plugins": {
             "pestphp/pest-plugin": true,
-            "phpstan/extension-installer": true
+            "phpstan/extension-installer": true,
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
+    },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/timkrase/phpunit-coverage-badge.git"
+        }
+    ],
+    "extra": {
+        "laravel": {
+            "providers": [
+                "SchenkeIo\\LaravelUrlCleaner\\LaravelUrlCleanerServiceProvider"
+            ]
         }
     },
     "minimum-stability": "dev",
