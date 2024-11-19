@@ -2,8 +2,12 @@
 
 namespace Workbench\App\Commands;
 
+use Cachet\Badger\Badge;
+use Cachet\Badger\Badger;
 use Illuminate\Console\Command;
 use PhpUnitCoverageBadge\BadgeGenerator;
+use PUGX\Poser\Poser;
+use PUGX\Poser\Render\SvgPlasticRender;
 use ReflectionClass;
 use SchenkeIo\LaravelUrlCleaner\Bases\BaseCleaner;
 use SchenkeIo\LaravelUrlCleaner\Bases\Source;
@@ -131,18 +135,25 @@ EOM;
         /*
          * write badge
          */
-        $coveredelements = 0;
+        $coveredElements = 0;
         $elements = 1;
         foreach (file(__DIR__.'/../../../build/logs/clover.xml') as $line) {
             //     <metrics files elements="565" coveredelements="355"/>
             if (preg_match('@<metrics files.*?elements="(\d+)" coveredelements="(\d+)"/>@', $line, $matches)) {
-                [$all, $elements, $coveredelements] = $matches;
+                [$all, $elements, $coveredElements] = $matches;
                 break;
             }
         }
-        $coverage = round($elements > 0 ? 100 * $coveredelements / $elements : 0, 0);
-        $badgeGenerator = new BadgeGenerator;
-        $badgeGenerator->generateBadge($coverage, __DIR__.'/../../../.github/coverage-badge.svg');
+        $coverage = round($elements > 0 ? 100 * $coveredElements / $elements : 0, 0);
+
+        $render = new SvgPlasticRender();
+        $poser = new Poser([$render]);
+
+        $svg = $poser->generate('Coverage', $coverage."%", '32CD32', 'plastic');
+
+
+        file_put_contents(__DIR__.'/../../../.github/coverage-badge.svg',$svg);
+        $this->info('coverage-badge.svg file written');
     }
 
     private function addFile(string $fileName): void
