@@ -47,9 +47,7 @@ class FileIo
         if (! file_exists($dirPath)) {
             mkdir($dirPath, 0755, true);
         }
-        if (is_dir($fullFilePath)) {
-            throw new FileIoException("File '$fullFilePath' is a directory");
-        } elseif (file_exists($fullFilePath)) {
+        if (file_exists($fullFilePath)) {
             if (! is_writable($fullFilePath)) {
                 throw new FileIoException("File '$fullFilePath' is not writable");
             }

@@ -43,12 +43,6 @@ it('can handle basic file operations', function () use ($filePath, $subDir) {
     $this->assertFileDoesNotExist($subDir);
 });
 
-it('raise exception when writing to a directory', function () {
-    $this->expectException(FileIoException::class);
-    $fileIo = new FileIo;
-    $fileIo->put('test/', 'yes');
-});
-
 it('raise exception when reading from a directory', function () {
     $this->expectException(FileIoException::class);
     $fileIo = new FileIo;
