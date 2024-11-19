@@ -3,9 +3,7 @@
 namespace Workbench\App\Commands;
 
 use Cachet\Badger\Badge;
-use Cachet\Badger\Badger;
 use Illuminate\Console\Command;
-use PhpUnitCoverageBadge\BadgeGenerator;
 use PUGX\Poser\Poser;
 use PUGX\Poser\Render\SvgPlasticRender;
 use ReflectionClass;
@@ -95,8 +93,6 @@ MD;
         }
         $this->content .= "</table>\n\n";
 
-        $this->addFile('config.md');
-
         $this->addFile('masks.md');
 
         /*
@@ -146,13 +142,12 @@ EOM;
         }
         $coverage = round($elements > 0 ? 100 * $coveredElements / $elements : 0, 0);
 
-        $render = new SvgPlasticRender();
+        $render = new SvgPlasticRender;
         $poser = new Poser([$render]);
 
-        $svg = $poser->generate('Coverage', $coverage."%", '32CD32', 'plastic');
+        $svg = $poser->generate('Coverage', $coverage.'%', '32CD32', 'plastic');
 
-
-        file_put_contents(__DIR__.'/../../../.github/coverage-badge.svg',$svg);
+        file_put_contents(__DIR__.'/../../../.github/coverage-badge.svg', $svg);
         $this->info('coverage-badge.svg file written');
     }
 

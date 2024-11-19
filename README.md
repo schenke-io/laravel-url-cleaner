@@ -1,9 +1,9 @@
 
 # Laravel URL cleaner - clean and concise
 
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/schenke-io/laravel-url-cleaner.svg?style=flat-square)](https://packagist.org/packages/schenke-io/laravel-url-cleaner)
-[![GitHub Tests Action Status](https://img.shields.io/github/actions/workflow/status/schenke-io/laravel-url-cleaner/run-tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/schenke-io/laravel-relation-manager/actions?query=workflow%3Arun-tests+branch%3Amain)
-[![Total Downloads](https://img.shields.io/packagist/dt/schenke-io/laravel-url-cleaner.svg?style=flat-square)](https://packagist.org/packages/schenke-io/laravel-url-cleaner)
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/schenke-io/laravel-url-cleaner.svg?style=plastic)](https://packagist.org/packages/schenke-io/laravel-url-cleaner)
+[![GitHub Tests Action Status](https://img.shields.io/github/actions/workflow/status/schenke-io/laravel-url-cleaner/run-tests.yml?branch=main&label=tests&style=plastic)](https://github.com/schenke-io/laravel-relation-manager/actions?query=workflow%3Arun-tests+branch%3Amain)
+[![Total Downloads](https://img.shields.io/packagist/dt/schenke-io/laravel-url-cleaner.svg?style=plastic)](https://packagist.org/packages/schenke-io/laravel-url-cleaner)
 ![](/.github/coverage-badge.svg)
 
 ![](/.github/clean-url.png)
@@ -15,7 +15,7 @@ your Laravel applications.
 
 To install just run:
 
-      composer require schenke-io/clean-url
+      composer require schenke-io/laravel-url-cleaner
 
 Here a code example:
 
@@ -106,36 +106,6 @@ A typical result could be:
 <tr><td>SortParameters</td><td>-</td><td>the query parameters get alphabetical sorted</td></tr>
 </table>
 
-
-## Config
-
-A default configuration file can be installed and later modified, you can install it with:
-
-```php
-php artisan url-cleaner:install
-```
-
-A typical result could be:
-
-```php
-[
-    'cleaners' => [
-        MarketingBroad::class,
-        RemoveLongValues::class,
-        PreventInvalidHost::class
-    ],
-    'max_length_value' => 40,
-    'masks' => ['dd3','vv67'],
-    'protected_keys' => ['search']   
-]
-```
-
-| key              | type  | description                                      | cleaner             |
-|------------------|-------|--------------------------------------------------|---------------------|
-| cleaners         | array | list of cleaner classes applied to the given URL | any                 |
-| max_length_value | int   | values longer than this are removed by           | `RemoveLongValues`  |
-| masks            | array | additional masks to be used                      | `RemoveConfigMasks` |
-| protected_keys   | array | key names which are guard against removal        | any                 |
 
 
 ## The use of masks
