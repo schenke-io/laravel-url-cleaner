@@ -67,40 +67,32 @@ it('can use glob() relative to base dir', function () {
 });
 
 it('raise error when it cannot write a file', function () {
-    $readOnlyFile = '/readonly.txt';
-    $fullPath = FileIo::$dataDir.$readOnlyFile;
-    if (File::exists($fullPath)) {
-        File::chmod($fullPath, 0644);
-    }
-    File::put($fullPath, '');
-    File::chmod($fullPath, 0444);
+    $readOnlyFile = 'readonly.txt';
 
-    try {
-        $this->expectException(FileIoException::class);
-        $fileIo = new FileIo;
-        $fileIo->put($readOnlyFile, 'yes');
-    } finally {
-        File::chmod($fullPath, 0644);
-        File::delete($fullPath);
-    }
+    File::shouldReceive('dirname')->andReturn('some_dir');
+    File::shouldReceive('exists')->withArgs(fn ($path) => str_contains($path, 'some_dir'))->andReturn(true);
+    File::shouldReceive('exists')->withArgs(fn ($path) => str_contains($path, $readOnlyFile))->andReturn(true);
+    File::shouldReceive('isWritable')->andReturn(false);
+
+    $this->expectException(FileIoException::class);
+    $this->expectExceptionMessage('is not writable');
+
+    $fileIo = new FileIo;
+    $fileIo->put($readOnlyFile, 'yes');
 });
 
 it('raise error when it cannot read a file', function () {
-    $fileIo = new FileIo;
     $fileName = 'non_readable.txt';
-    $fileIo->put($fileName, 'content');
-    $fullPath = FileIo::$dataDir.'/'.$fileName;
-    File::chmod($fullPath, 0222); // make it non-readable
 
-    try {
-        $fileIo->get($fileName);
-        $this->fail('Should have thrown an exception');
-    } catch (FileIoException $e) {
-        $this->assertStringContainsString('Could not read file', $e->getMessage());
-    } finally {
-        File::chmod($fullPath, 0644);
-        $fileIo->unlink($fileName);
-    }
+    File::shouldReceive('exists')->withArgs(fn ($path) => str_contains($path, $fileName))->andReturn(true);
+    File::shouldReceive('isFile')->andReturn(true);
+    File::shouldReceive('isReadable')->andReturn(false);
+
+    $this->expectException(FileIoException::class);
+    $this->expectExceptionMessage("Could not read file: $fileName");
+
+    $fileIo = new FileIo;
+    $fileIo->get($fileName);
 });
 
 it('can put content into an existing file', function () {
