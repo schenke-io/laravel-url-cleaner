@@ -32,15 +32,44 @@ test('rules are seen equal', function ($rule1, $rule2, $isEqual) {
     'same' => ['ab*', 'ab*', true],
 ]);
 
-test('smaller fits into larger rules', function ($ruleSmall, $ruleLarge, $isInside) {
-    $ruleSmall = new RuleKey($ruleSmall);
-    $ruleLarge = new RuleKey($ruleLarge);
-    expect($ruleSmall->isIncludedIn($ruleLarge))->toBe($isInside);
+test('isValid returns correct result', function ($key, $expected) {
+    expect(RuleKey::isValid($key))->toBe($expected);
 })->with([
-    'same 1' => ['aa', 'aa', true],
-    'same 2' => ['a__._', 'a__._', true],
-    'fix in start with 1' => ['a', 'a*', true],
-    'fix in start with 2' => ['ab', 'a*', true],
-    'fix in start with 3' => ['abc', 'a*', true],
-    'fix in start with 4' => ['abc', 'aa*', false],
+    ['aa', true],
+    ['a*', true],
+    ['& &', false],
 ]);
+
+test('isIncludedIn with non StarHandler returns false', function () {
+    $rule = new RuleKey('aa');
+    $other = new class implements \SchenkeIo\LaravelUrlCleaner\Bases\RuleInterface
+    {
+        public function __construct(string $external = '') {}
+
+        public function match(string $value): bool
+        {
+            return true;
+        }
+
+        public function isEqual(\SchenkeIo\LaravelUrlCleaner\Bases\RuleInterface $otherRule): bool
+        {
+            return true;
+        }
+
+        public function isIncludedIn(\SchenkeIo\LaravelUrlCleaner\Bases\RuleInterface $largerRule): bool
+        {
+            return true;
+        }
+
+        public function __toString(): string
+        {
+            return '';
+        }
+
+        public static function isValid(string $value): bool
+        {
+            return true;
+        }
+    };
+    expect($rule->isIncludedIn($other))->toBeFalse();
+});

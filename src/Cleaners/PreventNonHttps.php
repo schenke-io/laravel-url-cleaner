@@ -13,6 +13,7 @@ use SchenkeIo\LaravelUrlCleaner\Exceptions\InvalidSchemeException;
  */
 class PreventNonHttps extends BaseCleaner
 {
+    /** @var array<int, string> */
     protected array $allowedSchemes = ['https'];
 
     /**

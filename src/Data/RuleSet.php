@@ -4,6 +4,13 @@ namespace SchenkeIo\LaravelUrlCleaner\Data;
 
 use SchenkeIo\LaravelUrlCleaner\Exceptions\DefectMaskException;
 
+/**
+ * Handles a set of rules for matching URL parameters and domains.
+ *
+ * This class combines a RuleKey and a RuleDomain to define a complete
+ * matching rule, which can be used to identify if a specific parameter
+ * on a specific domain should be removed or modified.
+ */
 class RuleSet
 {
     public RuleKey $ruleKey;
@@ -13,7 +20,7 @@ class RuleSet
     /**
      * @throws DefectMaskException
      */
-    public function __construct(public readonly string $key, public readonly string $domain = '')
+    public function __construct(public string $key, public string $domain = '')
     {
         if (! RuleKey::isValid($key)) {
             throw new DefectMaskException("Invalid key: $key");

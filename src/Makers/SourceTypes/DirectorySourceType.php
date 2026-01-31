@@ -7,6 +7,12 @@ use SchenkeIo\LaravelUrlCleaner\Bases\Source;
 use SchenkeIo\LaravelUrlCleaner\Data\FileIo;
 use SchenkeIo\LaravelUrlCleaner\Exceptions\FileIoException;
 
+/**
+ * Handles source data stored in a local directory.
+ *
+ * This class scans a directory for text files containing URL masks,
+ * aggregates them, removes duplicates, and stores a copy of the masks.
+ */
 class DirectorySourceType extends BaseSourceType
 {
     public function __construct(protected Source $source, protected FileIo $fileIo = new FileIo)
@@ -51,6 +57,9 @@ class DirectorySourceType extends BaseSourceType
 
     /**
      * @throws FileIoException
+     */
+    /**
+     * @return array<int, string>
      */
     public function getMasks(): array
     {

@@ -6,9 +6,20 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use SchenkeIo\LaravelUrlCleaner\Exceptions\WebIoException;
 
+/**
+ * Handles web input/output operations.
+ *
+ * This class provides methods to fetch content from web URLs, including
+ * specialized support for GitHub raw content.
+ */
 class WebIo
 {
-    public function __construct(private readonly Client $client = new Client) {}
+    private readonly Client $client;
+
+    public function __construct(?Client $client = null)
+    {
+        $this->client = $client ?? new Client;
+    }
 
     /**
      * @throws WebIoException

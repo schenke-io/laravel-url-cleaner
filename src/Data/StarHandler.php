@@ -4,16 +4,25 @@ namespace SchenkeIo\LaravelUrlCleaner\Data;
 
 use SchenkeIo\LaravelUrlCleaner\Bases\RuleInterface;
 
-class StarHandler
+/**
+ * Handles wildcard matching for URL parameters and domains.
+ *
+ * This class supports prefix, suffix, and infix wildcards using the '*' character,
+ * providing logic to match values and compare rule inclusion.
+ */
+class StarHandler implements RuleInterface
 {
-    public readonly bool $starPrefix;
+    public bool $starPrefix;
 
-    public readonly bool $starSuffix;
+    public bool $starSuffix;
 
-    public readonly string $maskText;
+    public string $maskText;
 
-    public function __construct(public readonly string $external)
+    public string $external;
+
+    public function __construct(string $external)
     {
+        $this->external = $external;
         $this->starPrefix = str_starts_with($this->external, '*');
         $this->starSuffix = str_ends_with($this->external, '*');
         $this->maskText = trim($external, '*');
@@ -48,21 +57,21 @@ class StarHandler
 
     /**
      * compares two rules for similarity
-     *
-     * @param  RuleDomain  $otherRule
      */
     public function isEqual(RuleInterface $otherRule): bool
     {
-        return $this->external == $otherRule->external;
+        return $this->external == $otherRule->__toString();
     }
 
     /**
      * checks if this rule fits into the other rule or is same
-     *
-     * @param  RuleDomain  $largerRule
      */
     public function isIncludedIn(RuleInterface $largerRule): bool
     {
+        if (! ($largerRule instanceof StarHandler)) {
+            return false;
+        }
+
         /*
          * if this mask has a star more than the larger rule
          * it can not be contained in it
@@ -89,5 +98,13 @@ class StarHandler
     public function __toString(): string
     {
         return $this->external;
+    }
+
+    /**
+     * syntax validation - dummy implementation for StarHandler
+     */
+    public static function isValid(string $value): bool
+    {
+        return true;
     }
 }

@@ -6,7 +6,7 @@ use SchenkeIo\LaravelUrlCleaner\Bases\Source;
 use SchenkeIo\LaravelUrlCleaner\Data\MaskArray;
 
 test('invalid maks get not used', function () {
-    $maskArray = MaskArray::fromMasks(['a', 'b', 'c', 'hello world']);
+    $maskArray = MaskArray::fromMasks(['a', 'b', 'c', 'hello world', 'a@b@c']);
     expect($maskArray->count())->toBe(3);
 });
 
@@ -30,6 +30,7 @@ test('broad list merging', function ($givenSet, $expectedSet) {
     'broader wins 2' => [['a', 'a@test.com'], ['a']],
     'broader wins 3' => [['a@test.com', 'a'], ['a']],
     'broader wins 4' => [['a*', 'a@test.com'], ['a*']],
+    'broader wins 5' => [['*a', 'xa'], ['*a']],
 ]);
 
 test('narrow list merging', function ($givenSet, $expectedSet) {
@@ -51,3 +52,8 @@ test('narrow list merging', function ($givenSet, $expectedSet) {
     'narrow wins 3' => [['a@test.com', 'a'], ['a@test.com']],
     'narrow wins 4' => [['a*', 'a@test.com'], ['a@test.com']],
 ]);
+
+test('reduce with other source does not change anything but sorts', function () {
+    $reducedSet = MaskArray::fromMasks(['b', 'a'])->reduce(Source::TopLevelDomains);
+    expect($reducedSet->masks())->toBe(['a', 'b']);
+});

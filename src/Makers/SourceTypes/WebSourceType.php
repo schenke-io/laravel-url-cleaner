@@ -27,7 +27,7 @@ class WebSourceType extends BaseSourceType
      */
     public function makeCopy(): string
     {
-        $url = $this->source->sourceFile();
+        $url = $this->source->sourceFile() ?? '';
         $content = $this->webIo->get($url);
         $this->fileIo->put($this->source->pathSourceCopy(), $content);
 
@@ -44,6 +44,9 @@ class WebSourceType extends BaseSourceType
         return $this->source;
     }
 
+    /**
+     * @return array<int, string>
+     */
     public function getMasks(): array
     {
         return []; // unable to get the masks from filename

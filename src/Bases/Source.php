@@ -19,6 +19,13 @@ use SchenkeIo\LaravelUrlCleaner\Makers\SourceTypes\NoSourceType;
 use SchenkeIo\LaravelUrlCleaner\Makers\SourceTypes\WebSourceType;
 use SchenkeIo\LaravelUrlCleaner\Makers\Transformer;
 
+/**
+ * Enum representing different data sources for URL cleaning masks.
+ *
+ * Each case corresponds to a specific source of marketing or tracking parameters,
+ * or top-level domains. It provides methods to handle source types,
+ * converters, and file paths for these sources.
+ */
 enum Source
 {
     use From;
@@ -35,12 +42,23 @@ enum Source
 
     case TopLevelDomains;
 
+    /**
+     * Get the Source case from a cleaner class.
+     *
+     * @param  BaseCleaner  $class  The cleaner class instance.
+     * @return self|null The matching Source case or null if not found.
+     */
     public static function fromClass(BaseCleaner $class): ?self
     {
         return self::tryFrom(class_basename($class));
     }
 
     /**
+     * Get the number of masks available for this source.
+     *
+     * @param  FileIo  $fileIo  The FileIo instance to use.
+     * @return int The count of masks.
+     *
      * @throws FileIoException
      */
     public function maskCount(FileIo $fileIo = new FileIo): int
@@ -48,18 +66,28 @@ enum Source
         return MaskTree::fromSource($this, $fileIo)->maskArray()->count();
     }
 
+    /**
+     * Determine if this source provides masks for all cases.
+     *
+     * @return bool True if it's a source for all, false otherwise.
+     */
     public function isSourceForAll(): bool
     {
-        return match ($this) {
-            Source::Marketing00,
-            Source::Marketing01,
-            Source::Marketing02,
-            Source::Marketing03,
-            Source::Marketing04 => true,
+        return match ($this->name) {
+            'Marketing00',
+            'Marketing01',
+            'Marketing02',
+            'Marketing03',
+            'Marketing04' => true,
             default => false,
         };
     }
 
+    /**
+     * Get the path to the final JSON file for this source.
+     *
+     * @return string The relative path to the JSON file.
+     */
     public function pathFinalJson(): string
     {
         return match ($this) {
@@ -67,71 +95,107 @@ enum Source
         };
     }
 
+    /**
+     * Create a Transformer for this source.
+     *
+     * @param  FileIo  $fileIo  The FileIo instance.
+     * @param  WebIo  $webIo  The WebIo instance.
+     * @return Transformer The configured transformer.
+     */
     public function transformer(FileIo $fileIo, WebIo $webIo): Transformer
     {
         return new Transformer($this->sourceType($fileIo, $webIo), $this->converter($fileIo));
     }
 
+    /**
+     * Get the appropriate converter for this source.
+     *
+     * @param  FileIo  $fileIo  The FileIo instance.
+     * @return BaseConverter The configured converter.
+     */
     public function converter(FileIo $fileIo): BaseConverter
     {
-        return match ($this) {
-            self::Marketing00 => new TextLinesMasksConverter('@(.*)@', $fileIo),
-            self::Marketing01 => new TextLinesMasksConverter('@^(.*?),@', $fileIo),
-            self::Marketing02 => new TextLinesMasksConverter('@^(.*?)$@', $fileIo),
-            self::Marketing03 => new JsonMasksConverter('categories.*.params', $fileIo),
-            self::Marketing04 => new TextLineMasksConverter(',', $fileIo),
-            self::MarketingUnique,
-            self::MarketingNarrow,
-            self::MarketingBroad => new AllMarketingMasksConverter($this, $fileIo),
-            self::TopLevelDomains => new ArrayConverter('@^([-\w]+)$@', $fileIo, true, true),
+        return match ($this->name) {
+            'Marketing00' => new TextLinesMasksConverter('@(.*)@', $fileIo),
+            'Marketing01' => new TextLinesMasksConverter('@^(.*?),@', $fileIo),
+            'Marketing02' => new TextLinesMasksConverter('@^(.*?)$@', $fileIo),
+            'Marketing03' => new JsonMasksConverter('categories.*.params', $fileIo),
+            'Marketing04' => new TextLineMasksConverter(',', $fileIo),
+            'MarketingUnique',
+            'MarketingNarrow',
+            'MarketingBroad' => new AllMarketingMasksConverter($this, $fileIo),
+            'TopLevelDomains' => new ArrayConverter('@^([-\w]+)$@', $fileIo, true, true),
         };
-
     }
 
+    /**
+     * Get the source type handler for this source.
+     *
+     * @param  FileIo  $fileIo  The FileIo instance.
+     * @param  WebIo  $webIo  The WebIo instance.
+     * @return BaseSourceType The configured source type handler.
+     */
     public function sourceType(FileIo $fileIo, WebIo $webIo): BaseSourceType
     {
-        return match ($this) {
-            self::Marketing00 => new DirectorySourceType($this, $fileIo),
-            self::Marketing01,
-            self::Marketing02,
-            self::Marketing03,
-            self::Marketing04 => new GithubSourceType($this, $webIo, $fileIo),
-            self::TopLevelDomains => new WebSourceType($this, $webIo, $fileIo),
-            self::MarketingUnique,
-            self::MarketingNarrow,
-            self::MarketingBroad => new NoSourceType($this, $fileIo),
+        return match ($this->name) {
+            'Marketing00' => new DirectorySourceType($this, $fileIo),
+            'Marketing01',
+            'Marketing02',
+            'Marketing03',
+            'Marketing04' => new GithubSourceType($this, $webIo, $fileIo),
+            'TopLevelDomains' => new WebSourceType($this, $webIo, $fileIo),
+            'MarketingUnique',
+            'MarketingNarrow',
+            'MarketingBroad' => new NoSourceType($this, $fileIo),
         };
     }
 
+    /**
+     * Get the base identifier for the source (e.g., GitHub repo or local path).
+     *
+     * @return string|null The source base or null.
+     */
     public function sourceBase(): ?string
     {
-        return match ($this) {
-            self::Marketing00 => 'resources/manual',
-            self::Marketing01 => 'mpchadwick/tracking-query-params-registry',
-            self::Marketing02 => 'spekulatius/url-parameter-tracker-list',
-            self::Marketing03 => 'Smile4ever/Neat-URL',
-            self::Marketing04 => 'henkisdabro/platform-url-click-id-parameters',
-            self::TopLevelDomains => 'resources/top-level-domains',
+        return match ($this->name) {
+            'Marketing00' => 'resources/manual',
+            'Marketing01' => 'mpchadwick/tracking-query-params-registry',
+            'Marketing02' => 'spekulatius/url-parameter-tracker-list',
+            'Marketing03' => 'Smile4ever/Neat-URL',
+            'Marketing04' => 'henkisdabro/platform-url-click-id-parameters',
+            'TopLevelDomains' => 'resources/top-level-domains',
             default => null,
         };
     }
 
+    /**
+     * Get the file path or URL for the source data.
+     *
+     * @return string|null The source file path/URL or null.
+     */
     public function sourceFile(): ?string
     {
-        return match ($this) {
-            self::Marketing00 => 'resources/manual.txt',
-            self::Marketing01 => 'master/_data/params.csv',
-            self::Marketing02 => 'master/common-tracking-params.txt',
-            self::Marketing03 => 'master/data/default-params-by-category.json',
-            self::Marketing04 => 'main/parameter_list.csv',
-            self::TopLevelDomains => 'https://data.iana.org/TLD/tlds-alpha-by-domain.txt',
+        return match ($this->name) {
+            'Marketing00' => 'resources/manual.txt',
+            'Marketing01' => 'master/_data/params.csv',
+            'Marketing02' => 'master/common-tracking-params.txt',
+            'Marketing03' => 'master/data/default-params-by-category.json',
+            'Marketing04' => 'main/parameter_list.csv',
+            'TopLevelDomains' => 'https://data.iana.org/TLD/tlds-alpha-by-domain.txt',
             default => null,
         };
     }
 
+    /**
+     * Get the path where the source data is copied locally.
+     *
+     * @return string The local copy path.
+     */
     public function pathSourceCopy(): string
     {
-        return $this->sourceBase().'.'.pathinfo($this->sourceFile(), PATHINFO_EXTENSION);
+        $sourceFile = $this->sourceFile() ?? '';
+
+        return $this->sourceBase().'.'.pathinfo($sourceFile, PATHINFO_EXTENSION);
     }
 
     /**

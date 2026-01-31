@@ -1,17 +1,29 @@
 <?php
 
+namespace Tests\Feature\Cleaners;
+
+use Illuminate\Support\Facades\File;
 use SchenkeIo\LaravelUrlCleaner\Cleaners;
 use SchenkeIo\LaravelUrlCleaner\Data\FileIo;
 use SchenkeIo\LaravelUrlCleaner\Data\UrlData;
 
 test('marting cleaners work', function ($class) {
-    $fileIo = Mockery::mock(FileIo::class);
-    $fileIo->shouldReceive('getJson')->once()->andReturn([
-        'test.com' => ['a', 'b', 'c'],
-    ]);
+    FileIo::$dataDir = __DIR__.'/../../data';
 
-    $urlData = new UrlData('https://test.com/?a=1&z=2');
-    (new $class($fileIo))->clean($urlData);
+    // create dummy files if they don't exist to avoid FileIoException
+    $source = \SchenkeIo\LaravelUrlCleaner\Bases\Source::tryFrom(class_basename($class));
+    if ($source) {
+        $path = __DIR__.'/../../data/'.$source->pathFinalJson();
+        if (! File::exists(File::dirname($path))) {
+            File::makeDirectory(File::dirname($path), 0755, true);
+        }
+        File::put($path, json_encode(['*' => ['utm_source']]));
+    }
+
+    $urlData = new UrlData('https://test.com/?utm_source=1&z=2');
+    $cleaner = new $class;
+    $cleaner->clean($urlData);
+
     expect($urlData->getUrl())->toBe('https://test.com/?z=2');
 
 })->with([

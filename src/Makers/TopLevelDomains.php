@@ -2,10 +2,15 @@
 
 namespace SchenkeIo\LaravelUrlCleaner\Makers;
 
-use SchenkeIo\LaravelUrlCleaner\Bases\Source;
 use SchenkeIo\LaravelUrlCleaner\Data\FileIo;
 use SchenkeIo\LaravelUrlCleaner\Exceptions\FileIoException;
 
+/**
+ * Manages the validation of Top-Level Domains (TLDs).
+ *
+ * This class provides methods to check if a given TLD is valid based
+ * on the list of TLDs fetched from IANA.
+ */
 class TopLevelDomains
 {
     public function __construct(protected FileIo $fileIo = new FileIo) {}
@@ -18,8 +23,11 @@ class TopLevelDomains
     /**
      * @throws FileIoException
      */
-    public function isInvalidTld($tld): bool
+    public function isInvalidTld(string $tld): bool
     {
-        return ! in_array($tld, $this->fileIo->getJson(Source::TopLevelDomains->pathFinalJson()));
+        /** @var array<int, string> $tldList */
+        $tldList = $this->fileIo->getJson('final/topleveldomains.json');
+
+        return ! in_array($tld, $tldList);
     }
 }

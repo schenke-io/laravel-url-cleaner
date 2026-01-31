@@ -57,3 +57,9 @@ it('can get keys to remove', function () {
     $keysToRemove = $maskTree->getKeysToRemove($urlData);
     $this->assertEquals(['a', 'b'], $keysToRemove);
 });
+
+it('correctly handles domains in maskArray', function () {
+    $maskTree = MaskTree::fromMasks(Source::Marketing00, ['a@domain.com', 'b']);
+    $maskArray = $maskTree->maskArray();
+    expect($maskArray->masks())->toContain('a@domain.com', 'b');
+});

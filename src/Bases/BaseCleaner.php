@@ -26,9 +26,12 @@ abstract class BaseCleaner
     protected function removeParameterKeysUsingSource(UrlData &$urlData): void
     {
         $source = Source::fromClass($this);
+        if (! $source) {
+            return;
+        }
         $keysToRemove = MaskTree::fromSource($source, $this->fileIo)->getKeysToRemove($urlData);
         foreach ($keysToRemove as $key) {
-            $urlData->removeParameterKey($key);
+            $urlData->removeParameterKey((string) $key);
         }
     }
 }

@@ -13,6 +13,7 @@ use SchenkeIo\LaravelUrlCleaner\Exceptions\DefectMaskException;
  */
 class RemoveSearch extends BaseCleaner
 {
+    /** @var array<int, string> */
     protected array $masks = ['q', 'search'];
 
     /**

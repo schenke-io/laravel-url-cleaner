@@ -22,5 +22,8 @@ abstract class BaseSourceType
 
     abstract public function getSource(): Source;
 
+    /**
+     * @return array<int, string>
+     */
     abstract public function getMasks(): array;
 }

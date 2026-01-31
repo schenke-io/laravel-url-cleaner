@@ -20,8 +20,8 @@ final class RemoveLongValues extends BaseCleaner
     public function clean(UrlData &$urlData): void
     {
         foreach ($urlData->parameter as $key => $value) {
-            if (strlen($value) > config('url-cleaner.max_length_value')) {
-                $urlData->removeParameterKey($key);
+            if (is_string($value) && strlen($value) > config('url-cleaner.max_length_value')) {
+                $urlData->removeParameterKey((string) $key);
             }
         }
     }

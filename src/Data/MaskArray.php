@@ -5,25 +5,44 @@ namespace SchenkeIo\LaravelUrlCleaner\Data;
 use SchenkeIo\LaravelUrlCleaner\Bases\Source;
 use SchenkeIo\LaravelUrlCleaner\Exceptions\DefectMaskException;
 
+/**
+ * A collection of URL parameter masks and their corresponding RuleSets.
+ *
+ * This class provides methods to add, count, serialize, and reduce masks
+ * based on their coverage (broad or narrow).
+ */
 final class MaskArray
 {
     /**
-     * @var array<string,RuleSet>
+     * @var array<string,RuleSet> Internal storage for masks and their RuleSets.
      */
     private array $data = [];
 
+    /**
+     * Constructor for MaskArray.
+     *
+     * @param  array<int|string, string>  $masks  An array of initial masks to add.
+     */
     public function __construct(array $masks = [])
     {
         $this->add($masks);
     }
 
+    /**
+     * Factory method to create a MaskArray from an array of masks.
+     *
+     * @param  array<int|string, string>  $masks  An array of masks.
+     * @return MaskArray A new instance of MaskArray.
+     */
     public static function fromMasks(array $masks): MaskArray
     {
         return new self($masks);
     }
 
     /**
-     * @return RuleSet[]
+     * Get all RuleSets in the collection.
+     *
+     * @return RuleSet[] An array of RuleSet objects.
      */
     public function ruleSets(): array
     {
@@ -31,28 +50,51 @@ final class MaskArray
     }
 
     /**
-     * list of all unique masks
+     * Get a list of all unique masks.
+     *
+     * @return string[] An array of mask strings.
      */
     public function masks(): array
     {
         return array_keys($this->data);
     }
 
+    /**
+     * Serialize the mask list.
+     *
+     * @return string The serialized array of masks.
+     */
     public function serialize(): string
     {
         return serialize($this->masks());
     }
 
+    /**
+     * Get the number of masks in the collection.
+     *
+     * @return int The mask count.
+     */
     public function count(): int
     {
         return count($this->masks());
     }
 
+    /**
+     * Set a RuleSet for a specific mask.
+     *
+     * @param  string  $mask  The mask string.
+     * @param  RuleSet  $ruleSet  The RuleSet object.
+     */
     public function setKeyValue(string $mask, RuleSet $ruleSet): void
     {
         $this->data[$mask] = $ruleSet;
     }
 
+    /**
+     * Add one or more masks to the collection.
+     *
+     * @param  string|array<int|string, string>  $input  A single mask string or an array of masks.
+     */
     public function add(string|array $input): void
     {
         if (is_string($input)) {
@@ -71,6 +113,12 @@ final class MaskArray
         }
     }
 
+    /**
+     * Reduce the collection of masks based on a Source's broadness or narrowness.
+     *
+     * @param  Source  $source  The source defining the reduction strategy.
+     * @return self The reduced MaskArray.
+     */
     public function reduce(Source $source): self
     {
         $final = $this->data;
@@ -79,12 +127,12 @@ final class MaskArray
                 if ($thisMask === $finalMask) {
                     continue;
                 }
-                if ($source === Source::MarketingBroad) {
+                if ($source->name === 'MarketingBroad') {
                     // broad, remove final if smaller
                     if ($finalRuleSet->isIncludedIn($thisRuleSet)) {
                         unset($final[$finalMask]);
                     }
-                } elseif ($source === Source::MarketingNarrow) {
+                } elseif ($source->name === 'MarketingNarrow') {
                     // narrow, remove final if larger
                     if ($thisRuleSet->isIncludedIn($finalRuleSet)) {
                         unset($final[$finalMask]);
@@ -98,46 +146,3 @@ final class MaskArray
         return $this;
     }
 }
-//
-//
-//        $keysToDelete = [];
-//        $final = MaskArray::fromMasks(array_keys($this->getArrayCopy()));
-//        $this->rewind();
-//        while ($this->valid()) {
-//
-//            $final->rewind();
-//            while ($final->valid()) {
-//                //                 echo sprintf("%s => %s\n",$this->key(), $final->key());
-//
-//                if ($this->key() !== $final->key()) {
-//                    if ($source === Source::MarketingBroad) {
-//                        if ($final->current()->isIncludedIn($this->current())) {
-//                            echo sprintf("final '%s' included in this '%s\n", $final->current(), $this->current());
-//                            $final->offsetUnset($final->key());
-//                            $keysToDelete[] = $final->key();
-//                        }
-//                    } elseif ($source === Source::MarketingNarrow) {
-//                        if ($this->current()->isIncludedIn($final->current())) {
-//                            echo "this included in final\n";
-//                            $final->offsetUnset($final->key());
-//                            $keysToDelete[] = $final->key();
-//                        }
-//                    }
-//                }
-//                $final->next();
-//            }
-//            $this->next();
-//        }
-//
-//        /*
-//         * reduce $this based on $final
-//         */
-//        $countBefore = $this->count();
-//        foreach ($keysToDelete as $key) {
-//            $this->offsetUnset($key);
-//        }
-//        $countAfter = $this->count();
-//        echo sprintf("reduce: from %d to %d keys, keysToDelete: %d\n", $countBefore, $countAfter, $keysToDelete);
-//    }
-
-//}

@@ -15,7 +15,7 @@ The core process of URL parameter removal utilizes specific masks.
 
 
 
-Soem examples are outlined in the table below.
+Some examples are outlined in the table below.
 
 | Mask       | URL 1<br> test.com/?a=1&b=2 | URL 2<br> test.net/?a=1&abb=2 | URL 3<br>  test2.com/?a=1&b=2 |
 |------------|------------------------------|-------------------------------|-------------------------------|

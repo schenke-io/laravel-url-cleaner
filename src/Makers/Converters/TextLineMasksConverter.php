@@ -27,7 +27,11 @@ class TextLineMasksConverter extends BaseConverter
     public function convert(Source $source): string
     {
         $content = $this->fileIo->get($source->pathSourceCopy());
-        $masks = explode($this->delimiter, $content);
+        if ($this->delimiter === '') {
+            $masks = [$content];
+        } else {
+            $masks = explode($this->delimiter, $content);
+        }
         MaskTree::fromMasks($source, $masks, $this->fileIo)->store();
 
         return sprintf('read %s by line and found %d masks, written to %s', $source->pathSourceCopy(), count($masks), $source->pathFinalJson());

@@ -13,6 +13,7 @@ use SchenkeIo\LaravelUrlCleaner\Exceptions\InvalidHostException;
  */
 class PreventLocalhost extends BaseCleaner
 {
+    /** @var array<int, string> */
     protected array $hostRegExes = ['/localhost/'];
 
     /**

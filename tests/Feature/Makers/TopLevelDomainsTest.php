@@ -5,7 +5,7 @@ use SchenkeIo\LaravelUrlCleaner\Makers\TopLevelDomains;
 
 it('can check tld', function ($tld, $isInvalid) {
     $fileIo = Mockery::mock(FileIo::class);
-    $fileIo->shouldReceive('getJson')->once()->andReturn(['com', 'net']);
+    $fileIo->shouldReceive('getJson')->andReturn(['com', 'net']);
     $domains = TopLevelDomains::init($fileIo);
     expect($domains->isInvalidTld($tld))->toBe($isInvalid);
 })->with([

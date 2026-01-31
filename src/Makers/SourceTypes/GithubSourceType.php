@@ -9,6 +9,12 @@ use SchenkeIo\LaravelUrlCleaner\Data\WebIo;
 use SchenkeIo\LaravelUrlCleaner\Exceptions\FileIoException;
 use SchenkeIo\LaravelUrlCleaner\Exceptions\MakeException;
 
+/**
+ * Handles source data stored on GitHub.
+ *
+ * This class fetches URL masks from a raw GitHub URL, aggregates them,
+ * and stores a local copy.
+ */
 class GithubSourceType extends BaseSourceType
 {
     public function __construct(
@@ -48,6 +54,9 @@ class GithubSourceType extends BaseSourceType
         return $this->source;
     }
 
+    /**
+     * @return array<int, string>
+     */
     public function getMasks(): array
     {
         return []; // unable to get the masks from filename

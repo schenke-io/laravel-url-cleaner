@@ -2,13 +2,15 @@
 
 namespace Workbench\App\Commands;
 
-use Cachet\Badger\Badge;
 use Illuminate\Console\Command;
-use PUGX\Poser\Poser;
-use PUGX\Poser\Render\SvgPlasticRender;
-use ReflectionClass;
-use SchenkeIo\LaravelUrlCleaner\Bases\BaseCleaner;
+use Illuminate\Support\Facades\File;
 use SchenkeIo\LaravelUrlCleaner\Bases\Source;
+use SchenkeIo\PackagingTools\Badges\MakeBadge;
+use SchenkeIo\PackagingTools\Markdown\ClassReader;
+use SchenkeIo\PackagingTools\Markdown\MarkdownAssembler;
+use SchenkeIo\PackagingTools\Setup\ProjectContext;
+
+use function Orchestra\Testbench\package_path;
 
 class WriteReadmeCommand extends Command
 {
@@ -16,143 +18,75 @@ class WriteReadmeCommand extends Command
 
     protected $description = 'write the readme file';
 
-    protected string $content = '';
-
-    /**
-     * @throws \ReflectionException
-     */
-    private function getCleanersData(): array
+    public function handle(): void
     {
-        $cleanerFiles = glob(__DIR__.'/../../../src/Cleaners/*.php');
-        $cleaners = [];
+        $projectContext = new ProjectContext(File::getFacadeRoot(), package_path(), 'src');
+
+        /*
+         * generate coverage badge
+         */
+        MakeBadge::makeCoverageBadge('coverage.xml', $projectContext)->store('.github/coverage-badge.svg');
+        $this->info('Coverage badge generated');
+
+        $assembler = new MarkdownAssembler('workbench/resources/md', $projectContext);
+
+        $assembler->addTableOfContents();
+        $assembler->badges()->all();
+        $assembler->addMarkdown('header.md');
+
+        $assembler->addMarkdown('config.md');
+
+        /*
+         * Cleaners Table
+         */
+        $cleanerFiles = File::glob(package_path('src/Cleaners/*.php'));
+        $tableData = [['class name', '# masks', 'description']];
         foreach ($cleanerFiles as $file) {
-            $classBase = basename($file, '.php');
-            $description[$classBase] = '';
+            $classBase = File::name($file);
+            /** @var class-string $fullClassname */
             $fullClassname = "SchenkeIo\\LaravelUrlCleaner\\Cleaners\\$classBase";
-            $cleaners[$fullClassname]['base'] = $classBase;
             $source = Source::tryFromName($classBase);
-            $cleaners[$fullClassname]['masks'] = $source?->maskCount() ?? '-';
-            $reflection = new ReflectionClass($fullClassname);
-            $cleaners[$fullClassname]['final'] = $reflection->isFinal();
+            $maskCount = $source?->maskCount() ?? '-';
 
-            $comment = $reflection->getDocComment();
-            foreach (explode("\n", $comment) as $line) {
-                if (preg_match('@^.*?\* (\@\w+|)(.*?)$@', trim($line), $matches)) {
-                    [$all, $tag, $content] = $matches;
-                    if ($tag) {
-                        if (in_array($tag, ['@short', '@task'])) {
-                            $cleaners[$fullClassname][$tag] = trim($content);
-                        } else {
-                            $cleaners[$fullClassname][$tag][] = trim($content);
-                        }
+            $classReader = ClassReader::fromClass($fullClassname, $projectContext);
+            $classData = $classReader->getClassDataFromClass($fullClassname);
 
-                    } else {
-                        @$cleaners[$fullClassname]['details'] .= $content."\n";
-                    }
+            $tableData[] = [
+                $classBase,
+                (string) $maskCount,
+                $classData['short'] ?? '',
+            ];
+        }
+        $assembler->tables()->fromArray($tableData);
+
+        $assembler->addMarkdown('masks.md');
+        $assembler->addMarkdown('extending.md');
+
+        /*
+         * Extending details
+         */
+        foreach ($cleanerFiles as $file) {
+            $classBase = File::name($file);
+            /** @var class-string $fullClassname */
+            $fullClassname = "SchenkeIo\\LaravelUrlCleaner\\Cleaners\\$classBase";
+            $reflection = new \ReflectionClass($fullClassname);
+            if (! $reflection->isFinal()) {
+                $extendingFile = "extending/$classBase.md";
+                if (File::exists(package_path("workbench/resources/md/$extendingFile"))) {
+                    $assembler->addMarkdown($extendingFile);
                 }
             }
         }
 
-        return $cleaners;
-    }
-
-    /**
-     * @throws \ReflectionException
-     * @throws \Exception
-     */
-    public function handle(): void
-    {
-        $this->addFile('intro.md');
-        $this->addFile('config.md');
-        $cleaners = $this->getCleanersData();
-        //        print_r($cleaners);
         /*
-         * write the maks counts of all files
+         * Skills
          */
-        $this->content .= <<<'MD'
-##  List of cleaner classes
+        $assembler->addText('## AI Skills');
+        $assembler->skillOverview()->all();
+        $assembler->skills()->all();
 
-<table>
-<tr style="background-color: silver;">
-<th>class name</th>
-<th># masks</th>
-<th>description</th>
-</tr>
+        $assembler->writeMarkdown('README.md');
 
-MD;
-
-        /** @var BaseCleaner $class */
-        foreach ($cleaners as $class => $data) {
-            $short = $data['base'];
-            $this->content .= sprintf(
-                "<tr><td>%s</td><td>%s</td><td>%s</td></tr>\n",
-                $short,
-                $data['masks'],
-                $data['@short']
-            );
-        }
-        $this->content .= "</table>\n\n";
-
-        $this->addFile('masks.md');
-
-        /*
-         * extending base classes
-         */
-        $this->addFile('extending.md');
-        foreach ($cleaners as $class => $data) {
-            if (! $data['final']) {
-                $this->addFile('extending/'.$data['base'].'.md');
-            }
-        }
-
-        /*
-         *  Data sources
-         */
-        $this->content .= <<<'EOM'
-
-## Data sources
-
-Currently, the following sources are used:
-
-EOM;
-
-        foreach ($cleaners as $class => $data) {
-            if (! isset($data['@source'])) {
-                continue;
-            }
-            foreach ($data['@source'] as $source) {
-                $this->content .= "- $source\n";
-            }
-        }
-
-        file_put_contents(__DIR__.'/../../../README.md', $this->content);
         $this->info('README.md file written');
-
-        /*
-         * write badge
-         */
-        $coveredElements = 0;
-        $elements = 1;
-        foreach (file(__DIR__.'/../../../build/logs/clover.xml') as $line) {
-            //     <metrics files elements="565" coveredelements="355"/>
-            if (preg_match('@<metrics files.*?elements="(\d+)" coveredelements="(\d+)"/>@', $line, $matches)) {
-                [$all, $elements, $coveredElements] = $matches;
-                break;
-            }
-        }
-        $coverage = round($elements > 0 ? 100 * $coveredElements / $elements : 0, 0);
-
-        $render = new SvgPlasticRender;
-        $poser = new Poser([$render]);
-
-        $svg = $poser->generate('Coverage', $coverage.'%', '32CD32', 'plastic');
-
-        file_put_contents(__DIR__.'/../../../.github/coverage-badge.svg', $svg);
-        $this->info('coverage-badge.svg file written');
-    }
-
-    private function addFile(string $fileName): void
-    {
-        $this->content .= file_get_contents(__DIR__.'/../../resources/md/'.$fileName);
     }
 }

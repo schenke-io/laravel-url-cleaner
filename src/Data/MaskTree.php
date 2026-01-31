@@ -8,6 +8,7 @@ use SchenkeIo\LaravelUrlCleaner\Exceptions\FileIoException;
 
 final class MaskTree
 {
+    /** @var array<string, array<int, string>> */
     private array $tree = [];
 
     public function __construct(
@@ -30,6 +31,9 @@ final class MaskTree
         return $me;
     }
 
+    /**
+     * @param  array<int|string, string>  $masks
+     */
     public static function fromMasks(
         Source $source,
         array $masks,
@@ -103,17 +107,19 @@ final class MaskTree
     }
 
     /**
+     * @return array<int, int|string>
+     *
      * @throws DefectMaskException
      */
     public function getKeysToRemove(UrlData $urlData): array
     {
         $return = [];
-        foreach ($urlData->parameter as $queryKey => $queryValue) {
+        foreach ($urlData->getParameterKeys() as $queryKey) {
             // we only loop if the url has query parameters
             foreach ($this->tree as $domain => $keys) {
-                if ((new RuleDomain($domain))->match($urlData->host)) {
+                if ((new RuleDomain($domain))->match($urlData->getHost())) {
                     foreach ($keys as $key) {
-                        if ((new RuleKey($key))->match($queryKey)) {
+                        if ((new RuleKey($key))->match((string) $queryKey)) {
                             $return[] = $queryKey;
                         }
                     }

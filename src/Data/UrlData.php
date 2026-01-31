@@ -6,30 +6,71 @@ use SchenkeIo\LaravelUrlCleaner\Exceptions\CleanUrlException;
 use SchenkeIo\LaravelUrlCleaner\Exceptions\DefectMaskException;
 use SchenkeIo\LaravelUrlCleaner\Exceptions\InvalidUrlException;
 
+/**
+ * Represents the components of a URL and provides methods to manipulate them.
+ *
+ * This class parses a URL into its constituent parts (scheme, host, port, user, etc.),
+ * allows for removal of query parameters based on masks, and can reconstruct
+ * the modified URL.
+ */
 class UrlData
 {
+    /**
+     * @var string The original URL.
+     */
     protected string $url = '';
 
+    /**
+     * @var string The URL scheme (e.g., http, https).
+     */
     public string $scheme = '';
 
+    /**
+     * @var string The host name.
+     */
     public string $host = '';
 
+    /**
+     * @var string The port number.
+     */
     public string $port = '';
 
+    /**
+     * @var string The username.
+     */
     public string $user = '';
 
+    /**
+     * @var string The password.
+     */
     public string $pass = '';
 
+    /**
+     * @var string The URL path.
+     */
     public string $path = '';
 
+    /**
+     * @var string The query string.
+     */
     public string $query = '';
 
+    /**
+     * @var string The fragment identifier.
+     */
     public string $fragment = '';
 
+    /**
+     * @var array<int|string, array<mixed>|string> The parsed query parameters as an associative array.
+     */
     public array $parameter = [];
 
     /**
-     * @throws InvalidUrlException
+     * Constructor for UrlData.
+     *
+     * @param  string  $url  The URL to parse.
+     *
+     * @throws InvalidUrlException If the given URL is invalid.
      */
     public function __construct(string $url)
     {
@@ -43,7 +84,7 @@ class UrlData
 
         $this->scheme = $data['scheme'] ?? '';
         $this->host = $data['host'] ?? '';
-        $this->port = $data['port'] ?? '';
+        $this->port = isset($data['port']) ? (string) $data['port'] : '';
         $this->user = $data['user'] ?? '';
         $this->pass = $data['pass'] ?? '';
         $this->path = $data['path'] ?? '';
@@ -54,29 +95,101 @@ class UrlData
     }
 
     /**
-     * @throws DefectMaskException
+     * Get the host part of the URL.
+     */
+    public function getHost(): string
+    {
+        return $this->host;
+    }
+
+    /**
+     * Get the domain part (same as host in this implementation).
+     */
+    public function getDomain(): string
+    {
+        return $this->host;
+    }
+
+    /**
+     * Get the URL scheme.
+     */
+    public function getScheme(): string
+    {
+        return $this->scheme;
+    }
+
+    /**
+     * Get the URL path.
+     */
+    public function getPath(): string
+    {
+        return $this->path;
+    }
+
+    /**
+     * Get the query parameter keys.
+     *
+     * @return array<int, int|string>
+     */
+    public function getParameterKeys(): array
+    {
+        return array_keys($this->parameter);
+    }
+
+    /**
+     * Set the host part of the URL.
+     */
+    public function setHost(string $host): void
+    {
+        $this->host = $host;
+    }
+
+    /**
+     * Set the URL scheme.
+     */
+    public function setScheme(string $scheme): void
+    {
+        $this->scheme = $scheme;
+    }
+
+    /**
+     * Remove parameters matching a specific mask.
+     *
+     * @param  string  $mask  The mask to match against query parameters.
+     *
+     * @throws DefectMaskException If the mask is malformed.
      */
     public function removeMask(string $mask): void
     {
         $ruleSet = RuleSet::fromMask($mask);
         if ($ruleSet->ruleDomain->match($this->host)) {
             foreach ($this->parameter as $key => $value) {
-                if ($ruleSet->ruleKey->match($key)) {
-                    $this->removeParameterKey($key);
+                if ($ruleSet->ruleKey->match((string) $key)) {
+                    $this->removeParameterKey((string) $key);
                 }
             }
         }
     }
 
+    /**
+     * Remove a specific query parameter key, unless it's protected.
+     *
+     * @param  string  $key  The query parameter key to remove.
+     */
     public function removeParameterKey(string $key): void
     {
-        if (! in_array($key, config('url-cleaner.protected_keys') ?? [])) {
+        $protectedKeys = config('url-cleaner.protected_keys') ?? [];
+        if (! in_array($key, $protectedKeys)) {
             unset($this->parameter[$key]);
         }
     }
 
     /**
-     * @throws InvalidUrlException
+     * Reconstruct the URL from its current component values.
+     *
+     * @return string The reconstructed URL.
+     *
+     * @throws InvalidUrlException If the reconstructed URL is invalid.
      */
     public function getUrl(): string
     {
@@ -101,6 +214,11 @@ class UrlData
         return $returnUrl;
     }
 
+    /**
+     * Get the full host string including scheme, user, pass, host, and port.
+     *
+     * @return string The full host part of the URL.
+     */
     public function fullHost(): string
     {
         $returnUrl = strtolower($this->scheme).'://';

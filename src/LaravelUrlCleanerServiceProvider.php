@@ -30,5 +30,8 @@ class LaravelUrlCleanerServiceProvider extends PackageServiceProvider
     public function register(): void
     {
         parent::register();
+        $this->app->singleton(UrlCleaner::class, function () {
+            return new UrlCleaner;
+        });
     }
 }

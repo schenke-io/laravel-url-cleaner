@@ -57,3 +57,11 @@ test('one rule is included in another', function ($rule1, $rule2, $similar) {
     'empty 5' => ['*', '**', true],
     'empty 6' => ['*', 'test.com', false],
 ]);
+
+test('isValid returns correct result', function ($domain, $expected) {
+    expect(RuleDomain::isValid($domain))->toBe($expected);
+})->with([
+    ['example.com', true],
+    ['*.example.com', true],
+    ['dd%%.com', false],
+]);

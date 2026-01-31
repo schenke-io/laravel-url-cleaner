@@ -20,12 +20,17 @@ class UrlCleaner
          * invalid url's throw an exception
          */
         $urlData = new UrlData($url);
-        /** @var BaseCleaner $cleaner */
-        foreach (config('url-cleaner.cleaners') as $cleaner) {
+        $cleanerList = config('url-cleaner.cleaners');
+        if (is_null($cleanerList) || ! is_array($cleanerList)) {
+            return $urlData->getUrl();
+        }
+        foreach ($cleanerList as $cleaner) {
+            /** @var BaseCleaner $cleanerInstance */
+            $cleanerInstance = new $cleaner;
             /**
              * each cleaner modify either the url or throw an exception
              */
-            (new $cleaner)->clean($urlData);
+            $cleanerInstance->clean($urlData);
         }
 
         /**

@@ -16,7 +16,7 @@ use SchenkeIo\LaravelUrlCleaner\Tests\TestCase;
 
 require_once __DIR__.'/../vendor/autoload.php';
 
-uses(TestCase::class)->in('Feature');
+uses(TestCase::class)->in('Feature', 'Unit');
 
 /*
 |--------------------------------------------------------------------------
@@ -29,9 +29,9 @@ uses(TestCase::class)->in('Feature');
 |
 */
 
-//expect()->extend('toBeOne', function () {
+// expect()->extend('toBeOne', function () {
 //    return $this->toBe(1);
-//});
+// });
 
 /*
 |--------------------------------------------------------------------------

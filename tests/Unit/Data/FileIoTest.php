@@ -1,22 +1,24 @@
 <?php
 
+use Illuminate\Support\Facades\File;
 use SchenkeIo\LaravelUrlCleaner\Data\FileIo;
 use SchenkeIo\LaravelUrlCleaner\Exceptions\FileIoException;
 
 /*
  * test in this data directory only
  */
-FileIo::$dataDir = __DIR__.'/../../data';
-$subDir = FileIo::$dataDir.'/tmp';
-$filePath = '/tmp/test.json';
-@unlink(FileIo::$dataDir.$filePath);
-@rmdir($subDir);
+beforeEach(function () {
+    FileIo::$dataDir = __DIR__.'/../../data';
+});
 
-$readOnlyFile = '/readonly.txt';
-@touch(FileIo::$dataDir.$readOnlyFile);
-@chmod(FileIo::$dataDir.$readOnlyFile, 0444);
+it('can handle basic file operations', function () {
+    $subDir = FileIo::$dataDir.'/tmp';
+    $filePath = '/tmp/test.json';
+    File::delete(FileIo::$dataDir.$filePath);
+    if (File::isDirectory($subDir)) {
+        File::deleteDirectory($subDir);
+    }
 
-it('can handle basic file operations', function () use ($filePath, $subDir) {
     $fileIo = new FileIo;
     $content = '[1,2]';
     $array = [1, 2];
@@ -39,7 +41,7 @@ it('can handle basic file operations', function () use ($filePath, $subDir) {
     $fileIo->unlink($filePath);
     $this->assertFileDoesNotExist(FileIo::$dataDir.$filePath);
     // remove subdirectory
-    rmdir($subDir);
+    File::deleteDirectory($subDir);
     $this->assertFileDoesNotExist($subDir);
 });
 
@@ -64,8 +66,53 @@ it('can use glob() relative to base dir', function () {
     ]);
 });
 
-it('raise error when it cannot write a file', function () use ($readOnlyFile) {
-    $this->expectException(FileIoException::class);
+it('raise error when it cannot write a file', function () {
+    $readOnlyFile = '/readonly.txt';
+    $fullPath = FileIo::$dataDir.$readOnlyFile;
+    if (File::exists($fullPath)) {
+        File::chmod($fullPath, 0644);
+    }
+    File::put($fullPath, '');
+    File::chmod($fullPath, 0444);
+
+    try {
+        $this->expectException(FileIoException::class);
+        $fileIo = new FileIo;
+        $fileIo->put($readOnlyFile, 'yes');
+    } finally {
+        File::chmod($fullPath, 0644);
+        File::delete($fullPath);
+    }
+});
+
+it('raise error when it cannot read a file', function () {
     $fileIo = new FileIo;
-    $fileIo->put($readOnlyFile, 'yes');
+    $fileName = 'non_readable.txt';
+    $fileIo->put($fileName, 'content');
+    $fullPath = FileIo::$dataDir.'/'.$fileName;
+    File::chmod($fullPath, 0222); // make it non-readable
+
+    try {
+        $fileIo->get($fileName);
+        $this->fail('Should have thrown an exception');
+    } catch (FileIoException $e) {
+        $this->assertStringContainsString('Could not read file', $e->getMessage());
+    } finally {
+        File::chmod($fullPath, 0644);
+        $fileIo->unlink($fileName);
+    }
+});
+
+it('can put content into an existing file', function () {
+    $fileIo = new FileIo;
+    $fileIo->put('test.txt', 'first');
+    $fileIo->put('test.txt', 'second');
+    $this->assertEquals('second', $fileIo->get('test.txt'));
+    $fileIo->unlink('test.txt');
+});
+
+test('it can reset dataDir', function () {
+    FileIo::$dataDir = '/tmp';
+    FileIo::reset();
+    expect(FileIo::$dataDir)->not->toBe('/tmp');
 });
